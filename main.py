@@ -1,11 +1,13 @@
-import numpy
-import cudaq
-import scipy.stats as stats
-
-import sympy as smp
+import oasis_dla
+import qiskit
+import qiskit.qasm3
 
 def main():
-    print("Hello from oasis!")
+    circuit = qiskit.qasm3.load("circuits/bell.qasm")
+    generators = oasis_dla.extract_generators(circuit)
+    dla = oasis_dla.compute_dla(*generators)
+
+    print(dla)
 
 
 if __name__ == "__main__":

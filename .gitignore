@@ -1,7 +1,15 @@
-.claude
-.venv
-.vscode
+.venv/
+.vscode/
+.claude/
 .python-version
 
-uv.lock
+# Claude.md
 CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/

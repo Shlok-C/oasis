@@ -10,6 +10,9 @@ dependencies = [
     "jupyter>=1.1.1",
     "matplotlib>=3.10.8",
     "numpy>=2.4.2",
+    "qiskit-ibm-runtime>=0.45.1",
+    "qiskit-qasm3-import>=0.6.0",
+    "qiskit[visualization]>=2.3.0",
     "scipy>=1.17.0",
     "sympy>=1.14.0",
 ]

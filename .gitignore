@@ -1,0 +1,7 @@
+.claude
+.venv
+.vscode
+.python-version
+
+uv.lock
+CLAUDE.md

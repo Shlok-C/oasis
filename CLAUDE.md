@@ -22,6 +22,9 @@ uv add <package>
 
 # Sync dependencies
 uv sync
+
+# Stage all changes
+git add .
 ```
 
 ## Architecture

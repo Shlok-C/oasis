@@ -1,6 +1,14 @@
 OPENQASM 3;
 include "stdgates.inc";
 
+
+
+// QFT on 3-qubits
+
+qubit[3] qbts;
+h qbts[0];
+
+
 // quantum fourier transform on n-qubits
 
 // const int n = 3;
@@ -11,6 +19,3 @@ include "stdgates.inc";
 //     }
 // }
 
-qubit[2] qbt;
-// test(1, qbt[0]);
-ctrl @ rx(π / 3) qbt[0], qbt[1];

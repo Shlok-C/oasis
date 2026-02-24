@@ -13,3 +13,6 @@ __pycache__/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# C++ build artifacts
+dla_compute/build/

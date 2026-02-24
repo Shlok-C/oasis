@@ -1,6 +1,5 @@
 #include <cudaq.h>
 #include <cudaq/algorithm.h>
-#include <cudaq/spin_op.h>
 
 #include <map>
 #include <string>

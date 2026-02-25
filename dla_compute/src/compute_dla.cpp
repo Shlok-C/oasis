@@ -1,11 +1,16 @@
 #include <cudaq.h>
 #include <cudaq/algorithm.h>
+#include <cudaq/spin_op.h>
 
 #include <map>
 #include <string>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include <iostream>
+
+namespace py = pybind11;
 
 __qpu__ void bell_kernel(int n_qubits) {
     cudaq::qvector q(n_qubits);
@@ -22,9 +27,6 @@ std::map<std::string, int> sample_bell(int n_qubits, int shots) {
         counts[bitstring] = static_cast<int>(count);
     return counts;
 }
-
-
-namespace py = pybind11;
 
 PYBIND11_MODULE(compute_dla, m) {
     m.doc() = "CUDA-Q accelerated DLA computation";

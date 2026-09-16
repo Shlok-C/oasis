@@ -57,4 +57,10 @@ The global cost function can be broken down like the following: $ C_G = 1 - abs(
 where P replaces the bolded $ketbra(0)$, $ P = 1/2 - 1/(2n) sum^(n-1)_j Z_j $
 
 This can be derived from the local hamiltonin, $H_L$, specifically the inner portion, $ 1/n sum_j^n ketbra(0_j) times.o II_macron(j) $ where j is the qubit and $macron(j)$ is all other qubits.
-$ ketbra(0) = (II - Z) / 2  => 1/n sum_j^n ketbra(0_j) times.o II_macron(j) $
+$ ketbra(0) = (II - Z) / 2  &=> 1/n sum_j^n (II_j - Z_j) / 2 times.o II_macron(j) \
+  &= 1/n (sum_j^n 1/2 II_j times.o II_macron(j) - 1/2 Z_j times.o II_macron(j)) \
+  &= 1/n (sum_j^n 1/2 II - sum_j^n 1/2 Z_j) \
+  &= 1/n (n/2 II - 1/2 sum_j^n Z_j) \
+  &= 1/2 - 1/(2n) sum_j^n Z_j quad "(where" II "is assumed)" 
+$
+slkdajdlkajsd

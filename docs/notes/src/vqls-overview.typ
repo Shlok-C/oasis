@@ -94,4 +94,11 @@ In the VQLS algorithm, $ket(x)$ is prepared by acting on the zero state with a t
 // ket(+)^(times.o n)
 === Training algorithm
 
-In the paper they mention that there are multiple different classical optimizers you could use to train $V(#params)$. One of these algorithms (which I later implement for the 10-qubit VQLS) uses a method that, at each iteration, chooses a random direction, $arrow(bold(w))$ in the parameter space and performs a line search, solving $min_(s in RR) C(arrow(bold(alpha)) + s arrow(bold(w)))$. 
+In the paper they mention that there are multiple different classical optimizers you could use to train $V(#params)$. One of these algorithms (which I later implement for the 10-qubit VQLS) uses a method that, at each iteration, chooses a random direction, $arrow(bold(w))$ in the parameter space and performs a line search, solving $min_(s in RR) C(arrow(bold(alpha)) + s arrow(bold(w)))$. They also talk about gradient-based methods and derive the gradients of the cost functions (local and global) to show that the same circuits that calculate cost functions can be used to compute gradients. For the QAOA ansatz aswell, specific training is used.
+
+=== Resilience to noise
+
+In the paper they mention how some VQAs have been shown to be resilient to noise, in the way that the optimal parameters for the algorithms are unaffected by different noise models, known as Optimal Parameter Resilience (OPR). In the appendix they show that VQLS exhibits OPR with the noramlized cost functions. Both being resilient to global depolarizing nosie and $C_L$ being resilient to measurement noise (good because $C_L$ is the cost function actually used for implementations at scale). In the paper they talk about an error mitigation procedure called Probabalistic Error Cancellation (PEC) in which they represent an ideal gate through a basis of noisy gates that a quantum computer can implement. Basically they show that for certain noise models, VQLS can still obtain the optimal solution. 
+
+=== Hadamard Overlap-Test
+

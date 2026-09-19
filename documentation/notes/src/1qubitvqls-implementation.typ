@@ -19,10 +19,10 @@ First I'll outline the framework that I'm working back from, my goal with this i
 
 First I'm gonna take some random A and $ket(b)$, so lets say that $ A &= II + 0.5X + 0.5Z \ ket(b) &= H ket(0) $
 
-So in matrix form this means that $ A = mat(1.5, 0.5; 0.5, -0.5, delim: "[") "and" ket(b) = vec(1/sqrt(2), 1/sqrt(2)) $
+So in matrix form this means that $ A = mat(1.5, 0.5; 0.5, 0.5, delim: "[") "and" ket(b) = vec(1/sqrt(2), 1/sqrt(2)) $
 
 
-So the solution to this equation is: $ ket(x) = A^(-1) ket(b) = vec(1/sqrt(2), -1/sqrt(2)) $
+So the solution to this equation is: $ ket(x) = A^(-1) ket(b) = vec(0, sqrt(2)) $
 
 
 I'm starting with trying to build this circuit without a hadamard test. Since it's only 1-qubit, it makes sense that I should just be able to calculate the expectation value directly for the cost function. 
@@ -41,4 +41,10 @@ Using these expectation values and some Pauli decomposition we can build the cos
 
 Using this pauli string decomposition of the two observables we care about, we can directly measure for the observables using Qiskit's SparsePauliString() function. Doing this we can get the expectation value of the numerator and denominator and then calculate the cost function.
 
-With this calca
+With this computation we can then optimize the cost function of the single parameter $theta$. In this example I used scipy's minimize method in its optimize library, and eventually get to the optimal solution. To extract the classical vector answer though some postprocessing is necessary with the value that we get for the norm, aka the expectation value of D, $expval(A^dagger A, x)$
+
+The answer that is measured from the optimal parameters is a normalized statevector, $ket(x)$ of the probabilities of each bitstring, which in the case of 1 qubit is just 0 and 1. We can expand this measurement and retrieve the answer x as follows, $ x/(||x||) = ket(x) \ x = ||x|| ket(x) $ So when I got the final measurement as $vec(0, 1)$ this makes sense as a normalized output, which we can un-normalize using the norm, $||x|| = 1/sqrt(2)$. With this we get our final answer, $ x = vec(0, sqrt(2)) $
+
+== DLA Analysis
+
+To compute the dynamical Lie algebra (DLA) we take the ansatz, $V(alpha) = R_y (theta) H$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$

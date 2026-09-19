@@ -47,4 +47,27 @@ The answer that is measured from the optimal parameters is a normalized statevec
 
 == DLA Analysis
 
-To compute the dynamical Lie algebra (DLA) we take the ansatz, $V(alpha) = R_y (theta) H$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$
+To compute the dynamical Lie algebra (DLA) we take the ansatz, $V(alpha) = R_y (theta) H$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$ with three parameters. 
+
+#table(
+  columns: (7em, auto, auto),
+  inset: 10pt,
+  align: horizon,
+  table.header(
+    [$ U = e^(-i theta H/2) $], [*Special Unitary Gate, U*], [*Hermitian Generator, H*],
+  ),
+  $$,
+  $ R_y (theta) $,
+  $ Y $,
+  $$,
+  $ H $,
+  $ (X+Z)/sqrt(2) $
+)
+
+So to compute the dynamical Lie algebra we take the Lie closure of the two 
+
+#block(
+  fill: luma(230),
+  inset: 10pt,
+  radius: 2pt,
+)[Another aside, *the Lie Closure* of a set of elements is the linear span formed by the brakets]

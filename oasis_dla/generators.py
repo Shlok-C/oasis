@@ -14,7 +14,7 @@ SINGLE_QUBIT_GENERATORS = {
     'rx': X,
     'ry': Y,
     'rz': Z,
-    'h': H,
+    'h': X-Z,
 }
 
 TWO_QUBIT_GENERATORS = {

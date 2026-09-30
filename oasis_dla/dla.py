@@ -35,28 +35,36 @@ def single_pass(op_set: list[np.ndarray]) -> list[np.ndarray]:
 
     return new_ops
 
+def construct_dla(generators):
+    dla = [] # init empty dla to start
+    print('test')
 
-def compute_dla(*generators: np.ndarray, lim: int = 20) -> tuple[list, int]:
-    basis = list(generators)
+    # go through initial generators
+    for gen in generators:
+        pot_dla = dla.append(gen)
+        print(pot_dla)
+        if linear_indep(pot_dla):
+            dla = pot_dla
 
-    i = 0
-    while True:
-        print(f"Iteration: {i}, basis size of {len(basis)}")
+    # now we're left w all the linear indep generators 
+    # go thru all combinations of generators and compute brackets, find
+    l = 1
+    r = 0
 
-        new_ops = single_pass(basis)
+    while l < len(dla):
+        for m in range(r):
+            bracket = commutator(dla[l], dla[m])
+            pot_dla = dla.append(bracket)
+            if linear_indep(pot_dla):
+                dla = pot_dla
+        r += 1
+        if r == l:
+            l += 1
+            r = 0
 
-        if len(new_ops) == 0:
-            break
+    return dla
 
-        basis.extend(new_ops)
-        i += 1
 
-        for new_op in new_ops:
-            print(f"Added\n{new_op}")
+            
 
-        if i > lim:
-            print(f"iterations exceeded {lim}, DLA loop terminated")
-            break
 
-    rank = np.linalg.matrix_rank([m.flatten() for m in basis])
-    return basis, rank

@@ -10,8 +10,8 @@ X = np.array([
 ])
 
 Y = np.array([
-    [0, 1j],
-    [-1j, 0]
+    [0, -1j],
+    [1j, 0]
 ])
 
 Z = np.array([
@@ -19,3 +19,4 @@ Z = np.array([
     [0, -1]
 ])
 
+pauli_matrices = [np.eye(2), X, Y, Z]

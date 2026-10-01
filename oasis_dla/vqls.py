@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
-from . import quantum_info as qi
+#from . 
+import quantum_info as qi
 
 import random
 
@@ -44,6 +45,7 @@ class VQLS:
             ansatz = qiskit.QuantumCircuit(1)
             ansatz.h(0)
             ansatz.ry(self.parameters[0], 0)
+            # ansatz.rz(self.parameters[1], 0)
         
         return ansatz
 
@@ -114,31 +116,111 @@ class VQLS:
     def extract_generators(self):
         pass
 
-    def compute_answer(self, parameters):
-        self.circuit.measure_all()
+    def state_tomography(self, parameters, shots):
+        # state tomography to recover relative phase
+        pubs = []
+        for basis in ["X", "Y", "Z"]:
+            qc = self.circuit.copy()
+            if basis == "X": # rotate to X basis
+                qc.h(0)
+            elif basis == "Y": # rotate to Y basis
+                qc.sdg(0)
+                qc.h(0)
+            qc.measure_all() # z basis needs no measurement
+            pubs.append((qc, parameters))
 
-        self.sampler = StatevectorSampler()
+        results = self.sampler.run(pubs, shots=shots).result()
 
+        _, norm = self.compute_expectation_values(parameters)
+
+        return VQLSResult(self.A, self.b, self.b_norm, norm, results, shots, parameters)
 
     def output(self):
         self.circuit.draw('mpl')
 
-    def solve(self, A, b):
+    def solve(self, A, b, shots=10_000):
         self.A = np.asarray(A)
         # flatten so column vectors and 1-D arrays both work
         self.b = np.asarray(b).reshape(-1)
 
         if not np.any(self.b):
-            raise ValueError("b must be a nonzero vector")
+            raise ValueError("b must be nonzero")
+
+        # the cost function assumes |b> is a normalized state
+        self.b_norm = np.linalg.norm(self.b)
+        self.b = self.b / self.b_norm
 
         self.optimize()
         print(self.res)
 
-        self.compute_expectation_values() 
+        self.results = self.state_tomography(self.res.x, shots)
 
+        return self.results
 
+# take in the results and parse through to do some data analysis
 class VQLSResult:
 
-    def __init__(self):
-        pass
+    def __init__(self, A, b, b_norm, norm, results, shots, parameters):
+        self.A = A
+        self.b = b # already normalized
+        self.b_norm = b_norm
+        self.norm = norm
+        self.results = results
+        self.shots = shots
+        self.opt_parameters = parameters
 
+    def rescale_answer(self):
+        self.bloch = [] # bloch vector
+        for result in self.results:
+            counts = result.data.meas.get_counts()
+            self.bloch.append((counts.get("0", 0) - counts.get("1", 0)) / self.shots) 
+            # exp val P(0) - P(1)
+
+        # ρ = 1/2 (I + <X>X + <Y>Y + <Z>Z); 
+        self.ρ = 0.5 * (np.eye(2) + self.bloch[0] * qi.X + self.bloch[1] * qi.Y + self.bloch[2] * qi.Z)
+        _, eigvecs = np.linalg.eigh(self.ρ)
+        x = eigvecs[:, -1]
+
+        # global phase is unobservable, so pick the one that makes A x point along b
+        phase = np.vdot(self.b, self.A @ x)
+        x = x * np.conj(phase) / abs(phase)
+
+        # rescale
+        self.x = x * self.b_norm / np.sqrt(np.real(self.norm))
+        return self.x
+
+    def get_probabilites(self):
+        z_probs = self.results[-1]
+
+        std_basis_counts = z_probs.data.meas.get_counts()
+        return std_basis_counts
+
+if __name__ == "__main__":
+    vqls = VQLS()
+
+    A = np.array([
+        [1, 1],
+        [0, 2]
+    ], dtype=complex)
+
+    b = np.array([
+        [1],
+        [-1]
+    ], dtype=complex)
+
+    # pauli_matrices = [np.eye(2), X, Y, Z]
+    # coeffs = [0.5 * np.trace(P @ A) for P in pauli_matrices]
+
+    # sum = np.zeros((2, 2), np.complex128)
+    # for i, p in enumerate(pauli_matrices):
+    #     sum += (coeffs[i] * p)
+    # sum
+
+    res = vqls.solve(A, b)
+    print(res.get_probabilites())
+
+    quantum_soln = res.rescale_answer()
+    classical_soln = np.linalg.solve(A, b).reshape(-1)
+
+    accuracy = abs(np.vdot(quantum_soln, classical_soln))**2 / (np.vdot(quantum_soln, quantum_soln) * np.vdot(classical_soln, classical_soln))
+    print(accuracy)

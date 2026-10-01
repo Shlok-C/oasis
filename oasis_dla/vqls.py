@@ -7,8 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
 
-#from . 
-import quantum_info as qi
+from . import quantum_info as qi
 
 import random
 
@@ -189,11 +188,12 @@ class VQLSResult:
         self.x = x * self.b_norm / np.sqrt(np.real(self.norm))
         return self.x
 
-    def get_probabilites(self):
+    def get_probabilities(self):
         z_probs = self.results[-1]
 
         std_basis_counts = z_probs.data.meas.get_counts()
-        return std_basis_counts
+        probs = {k: v / self.shots for k, v in std_basis_counts.items()}
+        return probs
 
 if __name__ == "__main__":
     vqls = VQLS()
@@ -217,7 +217,7 @@ if __name__ == "__main__":
     # sum
 
     res = vqls.solve(A, b)
-    print(res.get_probabilites())
+    print(res.get_probabilities())
 
     quantum_soln = res.rescale_answer()
     classical_soln = np.linalg.solve(A, b).reshape(-1)

@@ -187,8 +187,8 @@ class VQLSResult:
         x = x * np.conj(phase) / abs(phase)
 
         # rescale
-        self.x = x * self.b_norm / np.sqrt(np.real(self.norm))
-        return self.x.reshape(-1, 1)
+        self.x = (x * self.b_norm / np.sqrt(np.real(self.norm))).reshape(-1, 1)
+        return self.x
 
     def get_probabilities(self):
         z_probs = self.results[-1]

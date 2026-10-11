@@ -168,6 +168,8 @@ class VQLSResult:
         self.shots = shots
         self.opt_parameters = parameters
 
+        self.rescale_answer()
+
     def rescale_answer(self):
         self.bloch = [] # bloch vector
         for result in self.results:
@@ -186,7 +188,7 @@ class VQLSResult:
 
         # rescale
         self.x = x * self.b_norm / np.sqrt(np.real(self.norm))
-        return self.x
+        return self.x.reshape(-1, 1)
 
     def get_probabilities(self):
         z_probs = self.results[-1]
@@ -194,6 +196,12 @@ class VQLSResult:
         std_basis_counts = z_probs.data.meas.get_counts()
         probs = {k: v / self.shots for k, v in std_basis_counts.items()}
         return probs
+
+    def solution(self):
+        return self.x
+
+    def __repr__(self):
+        return f"Scaled Solution: {self.solution()}\n"
 
 if __name__ == "__main__":
     vqls = VQLS()

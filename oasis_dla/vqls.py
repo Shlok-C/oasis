@@ -156,6 +156,21 @@ class VQLS:
 
         return self.results
 
+    ## testing suite for VQLS:
+    def compute_accuracy(qs, cs):
+        return np.linalg.norm(cs - qs)
+
+    def generate_dataset(self):
+        Ai = []
+
+        return Ai
+
+    def accuracy_test(self):
+        pass
+
+    def plot_tests(self):
+        pass
+
 # take in the results and parse through to do some data analysis
 class VQLSResult:
 

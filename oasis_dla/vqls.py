@@ -27,7 +27,7 @@ class VQLS:
 
 
     def pauli_decomposition(self, A):
-        # I, X, Y, Z Pauli matrices
+        # X, Y, Z Pauli matrices
         paulis = qi.pauli_matrices
 
         self.coefficients = [0.5 * np.trace(P @ A) for P in paulis]

@@ -14,7 +14,7 @@ import random
 
 class VQLS:
 
-    def __init__(self, ansatz_type='hardware-efficient', qubits=1, optimizer="COBYQA"):
+    def __init__(self, ansatz_type=0, qubits=1, optimizer="COBYQA"):
 
         self.optimizer = optimizer
         self.num_qubits = qubits
@@ -37,14 +37,17 @@ class VQLS:
 
 
     def construct_ansatz(self, ansatz_type):
+        ansatz = qiskit.QuantumCircuit(1)
+        for i in range(self.num_qubits):
+            ansatz.h(i)
 
-        if self.num_qubits == 1:
+        if ansatz_type == 0:
             self.parameters = [Parameter('alpha_0')]
-
-            ansatz = qiskit.QuantumCircuit(1)
-            ansatz.h(0)
             ansatz.ry(self.parameters[0], 0)
-            # ansatz.rz(self.parameters[1], 0)
+        if ansatz_type == 1:
+            self.parameters = [Parameter('alpha_0'), Parameter('alpha_1')]
+            ansatz.ry(self.parameters[0], 0)
+            ansatz.rz(self.parameters[1], 0)
         
         return ansatz
 
@@ -157,19 +160,52 @@ class VQLS:
         return self.results
 
     ## testing suite for VQLS:
-    def compute_accuracy(qs, cs):
-        return np.linalg.norm(cs - qs)
+    def rand(self, real=1):
+        return random.random() + (1j * random.random() * (1-real))
 
-    def generate_dataset(self):
-        Ai = []
+    def compute_accuracy(self, qs, cs):
+        return 1 - np.linalg.norm(cs - qs)
+
+    def generate_dataset(self, random_entries=[1], shots=100):
+        Ai = [
+            np.ones((2, 2), dtype=complex) for i in range(shots)
+        ]
+
+        # insert random entries w/ real or complex numbers
+        for A in Ai:
+            # entry is 1-4
+            for entry in random_entries:
+                
+                binary = bin(int(entry.real) - 1)[2:]
+                if len(binary) == 1: binary = "0" + binary
+                # print(binary)
+                A[int(binary[0])][int(binary[1])] = self.rand(1-entry.imag)
 
         return Ai
 
-    def accuracy_test(self):
-        pass
+    def accuracy_test(self, dataset, b=np.array([[1/np.sqrt(2)], [1/np.sqrt(2)]])):
+        accuracies = []
 
-    def plot_tests(self):
-        pass
+        for A in dataset:
+            q_soln = self.solve(A, b).solution()
+            c_soln = np.linalg.solve(A, b)
+            # print(q_soln)
+            # print(c_soln)
+            acc = self.compute_accuracy(q_soln, c_soln)
+            print(acc)
+            accuracies.append(acc)
+
+        return accuracies
+        
+
+    def plot_tests(self, accuracies):
+        avg_acc = sum(accuracies) / len(accuracies)
+        print(f"Average Accuracy = {avg_acc}")
+        plt.plot(np.linspace(0, len(accuracies), len(accuracies)), accuracies)
+        plt.axhline(avg_acc, linestyle='--', color='black', label="Average Accuracy")
+        plt.xlabel("Test Number")
+        plt.ylabel("Accuracy")
+        plt.legend()
 
 # take in the results and parse through to do some data analysis
 class VQLSResult:

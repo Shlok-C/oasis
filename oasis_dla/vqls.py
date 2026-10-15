@@ -9,6 +9,9 @@ import scipy.optimize as opt
 
 from . import quantum_info as qi
 
+from itertools import product
+from functools import reduce
+
 import random
 
 
@@ -20,41 +23,46 @@ class VQLS:
         self.num_qubits = qubits
 
         self.ansatz = self.construct_ansatz(ansatz_type)
-        self.circuit = self.construct_circuit()
-
+        
         self.estimator = StatevectorEstimator()
         self.sampler = StatevectorSampler()
 
 
     def pauli_decomposition(self, A):
-        # X, Y, Z Pauli matrices
+        # X, Y, Z Pauli matrices in the proper basis for n-qubits
         paulis = qi.pauli_matrices
+        basis = []
+        # every n-tuple of length n
+        for perm in product(paulis, repeat=self.num_qubits):
+            pauli = reduce(np.kron, perm) # collapse the tuple into left action kronecker products 
+            basis.append(pauli)
 
-        self.coefficients = [0.5 * np.trace(P @ A) for P in paulis]
+        self.coefficients = [(1/(2**self.num_qubits)) * np.trace(P @ A) for P in basis]
 
         return self.coefficients
 
-
-
     def construct_ansatz(self, ansatz_type):
-        ansatz = qiskit.QuantumCircuit(1)
+        ansatz = qiskit.QuantumCircuit(self.num_qubits)
+
+        num_params = self.num_qubits * (ansatz_type+1)
+        self.parameters = [Parameter(f'alpha_{i}') for i in range(num_params)]
+
+        # layer of h gates
         for i in range(self.num_qubits):
             ansatz.h(i)
+            ansatz.ry(self.parameters[i], i)
+            if ansatz_type == 1:
+                ansatz.rz(self.parameters[self.num_qubits + i], i)
 
-        if ansatz_type == 0:
-            self.parameters = [Parameter('alpha_0')]
-            ansatz.ry(self.parameters[0], 0)
-        if ansatz_type == 1:
-            self.parameters = [Parameter('alpha_0'), Parameter('alpha_1')]
-            ansatz.ry(self.parameters[0], 0)
-            ansatz.rz(self.parameters[1], 0)
-        
         return ansatz
 
-    def construct_circuit(self):
+    def construct_circuit(self, A):
         circuit = qiskit.QuantumCircuit(self.num_qubits)
 
         circuit.compose(self.ansatz, inplace=True)
+
+        # prepare the circuit, |ψ> = A|x>
+        Al = self.pauli_decomposition(A)
 
         return circuit
 

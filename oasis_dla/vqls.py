@@ -49,14 +49,14 @@ class VQLS:
         for perm, label in zip(product(paulis, repeat=self.num_qubits), product("IXYZ", repeat=self.num_qubits)):
             pauli = reduce(np.kron, perm) # collapse the tuple into left action kronecker products
             basis.append(pauli)
-            self.labels.append("".join(label)) # leftmost char is the highest qubit, same as the kron order
+            self.labels.append("".join(label))
 
         self.coefficients = [(1/(2**self.num_qubits)) * np.trace(P @ A) for P in basis]
 
         return self.coefficients
 
     def prepare_lcu(self, A):
-        # A = Σ c_l A_l with each A_l a pauli string (unitary), drop the zero terms
+        # A = sum c_l A_l with each A_l a pauli string 
         coefficients = self.pauli_decomposition(A)
 
         self.lcu_coefficients = []
@@ -128,7 +128,7 @@ class VQLS:
             circuit.sdg(self.ancilla_idx)
 
         if kind == "global":
-            # γ_l = <0|U_b† A_l V|0>, so V and U_b† need controls too
+            # γ_l = <0|U_b^dag A_l V|0>, so V and U_b^dag need controls too
             circuit.compose(self.construct_controlled_ansatz(), inplace=True)
             self.controlled_A(circuit, l)
             circuit.append(self.U_b.inverse().to_gate().control(1), [self.ancilla_idx, *system])
@@ -139,7 +139,7 @@ class VQLS:
             self.controlled_A(circuit, l)
 
             if j != -1:
-                # U_b Z_j U_b†, the U_b's cancel when the ancilla is 0 so only Z_j is controlled
+                # U_b Z_j U_b^dag, the U_b's cancel when the ancilla is 0 so only Z_j is controlled
                 circuit.compose(self.U_b.inverse(), qubits=system, inplace=True)
                 circuit.cz(self.ancilla_idx, j)
                 circuit.compose(self.U_b, qubits=system, inplace=True)
@@ -205,7 +205,6 @@ class VQLS:
         return self.mu[(kind, l, lp, j)]
 
     def norm(self):
-        # <x|A†A|x> = Σ c_l c_lp* β_{l,lp}
         c = self.lcu_coefficients
         norm = 0.0
 
@@ -225,7 +224,7 @@ class VQLS:
                 for j in range(self.num_qubits):
                     mu_sum += c[l] * np.conj(c[lp]) * self.get_mu("local", l, lp, j)
 
-        # mu_sum is real since U_b Z_j U_b† is hermitian
+        # mu_sum is real since U_b Z_j U_b^dag is hermitian
         # no abs() here, otherwise A|x> in the -1 eigenspace of Z_j would also give 0 cost
         return 0.5 - 0.5 * np.real(mu_sum) / (self.num_qubits * self.norm())
 
@@ -233,7 +232,6 @@ class VQLS:
         self.run_hadamard_tests(parameters)
         c = self.lcu_coefficients
 
-        # <b|A|x> = Σ c_l γ_l
         overlap = 0.0
         for l in range(len(c)):
             overlap += c[l] * self.mu[("global", l, -1, -1)]
@@ -300,7 +298,7 @@ class VQLS:
         bound = self.ansatz.assign_parameters(parameters)
         x = Statevector(bound).data
 
-        # norm <x|A†A|x> to rescale with
+        # norm <x|A^dag A|x> to rescale with
         if self.cost == "direct":
             _, norm = self.compute_expectation_values(parameters)
         else:
@@ -380,7 +378,7 @@ class VQLS:
 
     def accuracy_test(self, dataset, b=None):
         if b is None:
-            # uniform superposition, (1/√2, 1/√2) for one qubit
+            # uniform superposition
             b = np.ones((2 ** self.num_qubits, 1)) / np.sqrt(2 ** self.num_qubits)
 
         accuracies = []

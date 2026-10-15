@@ -37,11 +37,11 @@ def single_pass(op_set: list[np.ndarray]) -> list[np.ndarray]:
 
 def construct_dla(generators):
     dla = [] # init empty dla to start
-    print('test')
+    # print('test')
 
     # go through initial generators
     for gen in generators:
-        pot_dla = dla.append(gen)
+        pot_dla = dla + [gen]
         print(pot_dla)
         if linear_indep(pot_dla):
             dla = pot_dla
@@ -54,7 +54,7 @@ def construct_dla(generators):
     while l < len(dla):
         for m in range(r):
             bracket = commutator(dla[l], dla[m])
-            pot_dla = dla.append(bracket)
+            pot_dla = dla + [bracket]
             if linear_indep(pot_dla):
                 dla = pot_dla
         r += 1

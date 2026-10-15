@@ -349,7 +349,7 @@ class VQLS:
         return random.random() + (1j * random.random() * (1-real))
 
     def compute_accuracy(self, qs, cs):
-        return 1 - np.linalg.norm(cs - qs)
+        return 1 - (np.linalg.norm(cs - qs) / np.linalg.norm(cs))
 
     def compute_fidelity(self, qs, cs):
         qs, cs = np.reshape(qs, -1), np.reshape(cs, -1)

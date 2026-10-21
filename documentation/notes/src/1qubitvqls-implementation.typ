@@ -106,3 +106,19 @@ The DLA computation algorithm as formalized in the paper goes as follows:
           
   ]
 )
+
+The movitation for studying the DLA of this 1-qubit algorithm comes from testing it on a suite of both real and complex matrices.
+
+So with the current ansatz in the algorithm, $R_y(theta) H$, the intuition is that the single Y-rotation gate does not have the capability to reach certain states. The Y-rotation gate cannot reach complex numbers since its a purely real matrix, so intuitively, complex matrices should have much lower accuracy of being solved. 
+
+So what I did was I took the VQLS algorithm and instantiated two versions of it. One with the same ansatz we've being talking about,
+
+#quantum-circuit(
+  lstick($ket(psi)$), 2, $H$, $R_y (theta)$, 1
+)
+
+And one of them with a different ansatz, including a Z-rotation gate, that varies the phase of the state, allowing complex amplitudes to be reachable
+
+#quantum-circuit(
+  lstick($ket(psi)$), 3, $H$, $R_y (theta_0)$, $R_z (theta_1)$
+)

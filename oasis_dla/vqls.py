@@ -128,7 +128,6 @@ class VQLS:
             circuit.sdg(self.ancilla_idx)
 
         if kind == "global":
-            # γ_l = <0|U_b^dag A_l V|0>, so V and U_b^dag need controls too
             circuit.compose(self.construct_controlled_ansatz(), inplace=True)
             self.controlled_A(circuit, l)
             circuit.append(self.U_b.inverse().to_gate().control(1), [self.ancilla_idx, *system])
@@ -139,7 +138,6 @@ class VQLS:
             self.controlled_A(circuit, l)
 
             if j != -1:
-                # U_b Z_j U_b^dag, the U_b's cancel when the ancilla is 0 so only Z_j is controlled
                 circuit.compose(self.U_b.inverse(), qubits=system, inplace=True)
                 circuit.cz(self.ancilla_idx, j)
                 circuit.compose(self.U_b, qubits=system, inplace=True)
@@ -151,12 +149,11 @@ class VQLS:
         return circuit
 
     def construct_circuits(self):
-        # build every hadamard test once, parameters get bound at each cost evaluation
+        # build every hadamard test once
         self.keys = []
         self.hadamard_circuits = []
         L = len(self.lcu_coefficients)
 
-        # β_{l,lp} for the norm, β_{lp,l} = β_{l,lp}* and β_{l,l} = 1
         for l in range(L):
             for lp in range(l + 1, L):
                 for part in ["re", "im"]:
@@ -164,7 +161,6 @@ class VQLS:
                     self.hadamard_circuits.append(self.hadamard_test(l, lp, -1, part))
 
         if self.cost == "local":
-            # δ_{l,lp,j}, also hermitian in l <-> lp and real on the diagonal
             for l in range(L):
                 for lp in range(l, L):
                     for j in range(self.num_qubits):
@@ -184,7 +180,7 @@ class VQLS:
         return self.hadamard_circuits
 
     def run_hadamard_tests(self, parameters):
-        # run all the hadamard tests in one batch, μ = re + i*im
+        # run all the hadamard tests in one batch
         pubs = [(circuit, self.ancilla_observable, parameters) for circuit in self.hadamard_circuits]
         results = self.estimator.run(pubs).result()
 
@@ -199,7 +195,7 @@ class VQLS:
 
     def get_mu(self, kind, l, lp, j=-1):
         if kind == "norm" and l == lp:
-            return 1.0 # A_l A_l = I
+            return 1.0 #
         if lp < l:
             return np.conj(self.mu[(kind, lp, l, j)])
         return self.mu[(kind, l, lp, j)]
@@ -223,9 +219,7 @@ class VQLS:
             for lp in range(len(c)):
                 for j in range(self.num_qubits):
                     mu_sum += c[l] * np.conj(c[lp]) * self.get_mu("local", l, lp, j)
-
-        # mu_sum is real since U_b Z_j U_b^dag is hermitian
-        # no abs() here, otherwise A|x> in the -1 eigenspace of Z_j would also give 0 cost
+        
         return 0.5 - 0.5 * np.real(mu_sum) / (self.num_qubits * self.norm())
 
     def global_cost(self, parameters):
@@ -269,10 +263,13 @@ class VQLS:
     def cost_function(self, parameters):
         match self.cost:
             case "local":
+                print("local cost")
                 return self.local_cost(parameters)
             case "global":
+                print("global cost")
                 return self.global_cost(parameters)
             case "direct":
+                print("direct cost")
                 exp_val, normalization = self.compute_expectation_values(parameters)
                 return np.real(1 - (exp_val/normalization))
 
@@ -298,7 +295,7 @@ class VQLS:
         bound = self.ansatz.assign_parameters(parameters)
         x = Statevector(bound).data
 
-        # norm <x|A^dag A|x> to rescale with
+        # norm to rescale with
         if self.cost == "direct":
             _, norm = self.compute_expectation_values(parameters)
         else:
@@ -319,13 +316,6 @@ class VQLS:
         # flatten so column vectors and 1-D arrays both work
         self.A = np.asarray(A)
         self.b = np.asarray(b).reshape(-1)
-
-        dim = 2 ** self.num_qubits
-        if self.A.shape != (dim, dim) or len(self.b) != dim:
-            raise ValueError(f"A must be {dim}x{dim} and b must have length {dim} for {self.num_qubits} qubits")
-
-        if not np.any(self.b):
-            raise ValueError("b must be nonzero")
 
         # normalize b into a state |b>
         self.b_norm = np.linalg.norm(self.b)

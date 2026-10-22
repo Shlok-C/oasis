@@ -11,39 +11,15 @@ def linear_indep(*mats: np.ndarray) -> bool:
 def commutator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return A @ B - B @ A
 
-
-def single_pass(op_set: list[np.ndarray]) -> list[np.ndarray]:
-    new_ops = []
-    n = len(op_set)
-
-    for i in range(n):
-        for j in range(i + 1, n):
-            H = commutator(op_set[i], op_set[j])
-
-            if np.allclose(H, 0):
-                continue
-
-            print(f"Calculating [op[{i}], op[{j}]]")
-
-            curr = [m.flatten() for m in (op_set + new_ops)]
-            new = curr + [H.flatten()]
-            rank_curr = np.linalg.matrix_rank(curr)
-            rank_new = np.linalg.matrix_rank(new)
-
-            if rank_new > rank_curr:
-                new_ops.append(H)
-
-    return new_ops
-
-def construct_dla(generators):
+# bad algorithm
+def fast_numerical_construct_dla(generators):
     dla = [] # init empty dla to start
     # print('test')
 
     # go through initial generators
     for gen in generators:
         pot_dla = dla + [gen]
-        print(pot_dla)
-        if linear_indep(pot_dla):
+        if linear_indep(*pot_dla):
             dla = pot_dla
 
     # now we're left w all the linear indep generators 
@@ -55,7 +31,7 @@ def construct_dla(generators):
         for m in range(r):
             bracket = commutator(dla[l], dla[m])
             pot_dla = dla + [bracket]
-            if linear_indep(pot_dla):
+            if linear_indep(*pot_dla):
                 dla = pot_dla
         r += 1
         if r == l:
@@ -64,6 +40,27 @@ def construct_dla(generators):
 
     return dla
 
+def construct_dla(generators):
+    S = generators
+    S_prev = generators
+    S_new = []
+    C = 1
+    new = 1
+
+    while new > 0:
+        S_new = []
+        for h0 in generators:
+            for h in S_prev:
+                C = commutator(h0, h)
+                S_union_C = S + [C]
+                if linear_indep(*S_union_C):
+                    S = S_union_C
+                    S_new = S_new + [C]
+
+        new = len(S_new)
+        S_prev = S_new
+
+    return S
 
             
 

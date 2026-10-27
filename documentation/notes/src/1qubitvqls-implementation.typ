@@ -46,6 +46,11 @@ With this computation we can then optimize the cost function of the single param
 
 The answer that is measured from the optimal parameters is a normalized statevector, $ket(x)$ of the probabilities of each bitstring, which in the case of 1 qubit is just 0 and 1. We can expand this measurement and retrieve the answer x as follows, $ x/(||x||) = ket(x) \ x = ||x|| ket(x) $ So when I got the final measurement as $vec(0, 1)$ this makes sense as a normalized output, which we can un-normalize using the norm, $||x|| = 1/sqrt(2)$. With this we get our final answer, $ x = vec(0, sqrt(2)) $
 
+== Testing the algorithm with 2 different ansatzes
+
+
+
+
 == DLA Analysis
 
 To compute the dynamical Lie algebra (DLA) we take the ansatz, $V(alpha) = R_y (theta) H$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$ with three parameters. 

@@ -263,13 +263,13 @@ class VQLS:
     def cost_function(self, parameters):
         match self.cost:
             case "local":
-                print("local cost")
+                # print("local cost")
                 return self.local_cost(parameters)
             case "global":
-                print("global cost")
+                # print("global cost")
                 return self.global_cost(parameters)
             case "direct":
-                print("direct cost")
+                # print("direct cost")
                 exp_val, normalization = self.compute_expectation_values(parameters)
                 return np.real(1 - (exp_val/normalization))
 

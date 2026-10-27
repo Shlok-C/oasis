@@ -48,7 +48,23 @@ The answer that is measured from the optimal parameters is a normalized statevec
 
 == Testing the algorithm with 2 different ansatzes
 
+For proper testing, lets first determine an intuitive analysis of how the accuracy of this algorithm with the specific ansatz chosen should work. 
 
+With the base algorithm we use the following ansatz:
+
+#quantum-circuit(
+  lstick($ket(0)$), $H$, $R_y (theta)$, rstick($$)
+)
+
+And for the second algorithm, we'll use a slightly modified one, with an added $R_z (theta)$ gate appended to the circuit
+
+#quantum-circuit(
+  lstick($ket(0)$), $H$, $R_y (theta_0)$, $R_z (theta_1)$, rstick($$)
+)
+
+Where the rotation matrices are defined as follows:
+
+$ R_y (theta) = mat(cos(theta/2), -sin(theta/2); sin(theta/2), cos(theta/2), delim: "["), R_z (theta) = mat(1, 0; 0, e^(i theta), delim: "[") $
 
 
 == DLA Analysis

@@ -18,7 +18,7 @@ import random
 
 class VQLS:
 
-    def __init__(self, ansatz_type=0, qubits=1, optimizer="COBYQA", cost="local"):
+    def __init__(self, ansatz_type=0, qubits=1, optimizer="COBYQA", cost="local", ansatz=None):
 
         if qubits > 3:
             raise ValueError("only up to 3 qubits are supported")
@@ -33,7 +33,10 @@ class VQLS:
         self.ancilla_idx = qubits
 
         self.ansatz_type = ansatz_type
-        self.ansatz = self.construct_ansatz(ansatz_type)
+        if ansatz == None:
+            self.ansatz = self.construct_ansatz(ansatz_type)
+        else:
+            self.ansatz = ansatz
         self.circuit = self.ansatz
 
         self.estimator = StatevectorEstimator()

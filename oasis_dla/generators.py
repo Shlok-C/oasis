@@ -1,29 +1,30 @@
 import numpy as np
+from .quantum_info import I, X, Y, Z, H
 import qiskit
 
-I = np.array([[1, 0], [0, 1]], dtype=complex)
-X = np.array([[0, 1], [1, 0]], dtype=complex)
-Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
-Z = np.array([[1, 0], [0, -1]], dtype=complex)
-H = np.array([[1, 1], [1, -1]], dtype=complex) / np.sqrt(2)
+# I = np.array([[1, 0], [0, 1]], dtype=complex)
+# X = np.array([[0, 1], [1, 0]], dtype=complex)
+# Y = np.array([[0, -1j], [1j, 0]], dtype=complex)
+# Z = np.array([[1, 0], [0, -1]], dtype=complex)
+# H = np.array([[1, 1], [1, -1]], dtype=complex) / np.sqrt(2)
 
 SINGLE_QUBIT_GENERATORS = {
-    'x': X,
-    'y': Y,
-    'z': Z,
-    'rx': (-1j/2) * X,
-    'ry': (-1j/2) * Y,
-    'rz': (-1j/2) * Z,
-    'h': (X-Z)/np.sqrt(2),
+    # 'x': X,
+    # 'y': Y,
+    # 'z': Z,
+    'rx': (1j) * X,
+    'ry': (1j) * Y,
+    'rz': (1j) * Z,
+    # 'h': (1j) * (X-Z),s
 }
 
 TWO_QUBIT_GENERATORS = {
     'rxx': (X, X),
     'ryy': (Y, Y),
     'rzz': (Z, Z),
-    'cx': (Z, X),
-    'cnot': (Z, X),
-    'cz': (Z, Z),
+    # 'cx': (Z, X),
+    # 'cnot': (Z, X),
+    # 'cz': (Z, Z),
 }
 
 

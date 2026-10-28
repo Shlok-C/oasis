@@ -385,14 +385,21 @@ class VQLS:
         return accuracies
 
 
-    def plot_tests(self, accuracies):
+    def plot_tests(self, accuracies, title="", ax=None):
         avg_acc = sum(accuracies) / len(accuracies)
         print(f"Average Accuracy = {avg_acc}")
-        plt.plot(np.linspace(0, len(accuracies), len(accuracies)), accuracies)
-        plt.axhline(avg_acc, linestyle='--', color='black', label="Average Accuracy")
-        plt.xlabel("Test Number")
-        plt.ylabel("Accuracy")
-        plt.legend()
+
+        if ax == None:
+            fig, ax = plt.subplots()
+
+        ax.plot(np.linspace(0, len(accuracies), len(accuracies)), accuracies)
+        ax.axhline(y=avg_acc, linestyle='--', color='black', label="Average Accuracy")
+        ax.set_xlabel("Test Number")
+        ax.set_ylabel("Accuracy")
+        ax.set_title(title)
+        ax.legend()
+
+        return ax
 
 # take in the results and parse through to do some data analysis
 class VQLSResult:

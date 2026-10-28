@@ -66,10 +66,57 @@ Where the rotation matrices are defined as follows:
 
 $ R_y (theta) = mat(cos(theta/2), -sin(theta/2); sin(theta/2), cos(theta/2), delim: "["), R_z (theta) = mat(1, 0; 0, e^(i theta), delim: "[") $
 
+The intuition behind this is simple. If I want to test this 1 qubit VQLS on a suite of random matrices, then I should think about the possibility for the optimizer to reach the true solution. If the matrix is complex, then it makes sense that just an $R_y$ gate cannot reach the complex solutions, whearas if you add a phase rotation gate with $R_z$ then you get more expressivenss in the ansatz and the ability to 'see' relative phase with complex numbers. 
+
+In testing the algorithm lets first look at what the output is and how the measurments are put together to form the solution.
+
+#let plots_path = "../../../vqls/plots"
+#figure(
+  image(plots_path + "/1qbt_measurement_boxplot.png")
+)
+
+As seen in the above box and whisker plots, the measurement probabilities are properly concentrated near the classical solution 'probabilities', showing that measurements can be accurately 'recomposed' into classical solutions.
+
+Next, we test the algorithm with the first ansatz on a suite of random real matrices. To do these we have to define a notion of 'correctness'.
+
+In these tests, we define 'accuracy' as follows:
+
+```python
+def compute_accuracy(self, quantum_solution, classical_solution):
+        return 1 - np.linalg.norm(classical_solution - quantum_solution)
+```
+
+Then to generate the random matrices, we use the built in random module to form a matrix with all four entries randomized to use as our A. In these tests we keep the $ket(b)$ constant as the $ket(plus)$ state. 
+
+#figure(
+  image(plots_path + "/real_tests.png")
+)
+
+This plot shows the results of testing 100 random real matrices with a constant $ket(b)$ in the single qubit VQLS algorithm with an ansatz of just $H$, $R_y (theta)$. For the YZ-ansatz, the same test performed yields similar results. 
+
+As expected, the average accuracy compared to classical solutions is determined to be $>0.999$ for both ansatz types, with the Y-ansatz slightly winning out
+
+$ "Average Accuracy for Y-ansatz" = 0.999958 \ "Average Accuracy for YZ-ansatz" = 0.999921 $
+
+// It can be seen for this data set that both algorithms dropped in accuracy for the same matrix around the 50th iteration of testing. 
+
+To extend this testing, we move to random complex matrices.
+
+#figure(
+  image(plots_path + "/complex_tests.png")
+)
+
+Now we're getting somewhere!
+
+From this testing we determine $ "Average Accuracy for Y-ansatz" = 0.26117 \ "Average Accuracy for YZ-ansatz" = 0.99999 $
+
+So we can see that the Y-ansatz is clearly underparameterized for this specific problem. Now it does put into question, why is the accuracy for the Y-ansatz not just 0? Especially when you look at the graph and can see that the accuracy is mostly driven down by some especially bad outliers. Maybe at some point in the DLA computations this root-cause can be found and addressed? Perhaps something in the algorithm itself. 
+
+From here we want to move onto DLA analysis to characterize the Variance of the cost function, the dimension of the DLA, the $frak(g)$-Purities, and the annihilators of $ket(b)$ to try and interpret and understand the results we've found. 
 
 == DLA Analysis
 
-To compute the dynamical Lie algebra (DLA) we take the ansatz, $V(alpha) = R_y (theta) H$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$ with three parameters. 
+To compute the dynamical Lie algebra (DLA) we take our ansatz, $V(arrow(theta)) = product U_i (theta_i)$ and extract the generators from each gate. The generators of a gate $ U = e^(-i theta H/2) $ where $ H in [sigma_1, sigma_2, sigma_3] $ The sigmas being pauli matrices X, Y, and Z. This representation of the Lie group $"SU"(2)$ gives way for the idea of the euler parameterization of a special unitary, $ U(phi, theta, psi) = e^(-i phi/2 sigma_1) e^(-i theta/2 sigma_2) e^(-i psi/2 sigma_3) $ Also showing that $"SU"(2)$ is isomorphic to the three-sphere, $S^3$ with three parameters. 
 
 #table(
   columns: (5.5em, auto, auto),

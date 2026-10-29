@@ -14,7 +14,7 @@ from itertools import product
 from functools import reduce
 
 import random
-
+import time
 
 class VQLS:
 
@@ -280,10 +280,17 @@ class VQLS:
         initial_point = [random.random() for _ in self.parameters]
 
         self.history = []
+        self.training_times = []
         def log_step(intermediate_result):
             self.history.append(intermediate_result.fun)
 
+        t0 = time.perf_counter()
         self.res = opt.minimize(self.cost_function, initial_point, method=self.optimizer, callback=log_step)
+        t1 = time.perf_counter()
+        dt = t1 - t0
+
+        print(f"Training time: {dt}")
+        self.training_times.append(dt)
 
     def plot_history(self):
         plt.plot(range(len(self.history)), self.history)
@@ -310,7 +317,7 @@ class VQLS:
         qc.measure_all()
         counts = self.sampler.run([qc], shots=shots).result()[0]
 
-        return VQLSResult(self.A, self.b, self.b_norm, norm, x, counts, shots, parameters)
+        return VQLSResult(self.A, self.b, self.b_norm, norm, x, self.training_times, counts, shots, parameters)
 
     def output(self):
         self.circuit.draw('mpl')
@@ -376,6 +383,9 @@ class VQLS:
 
         accuracies = []
 
+        # clear training times
+        self.training_times = []
+
         for A in dataset:
             q_soln = self.solve(A, b).solution()
             c_soln = np.linalg.solve(A, b)
@@ -385,7 +395,7 @@ class VQLS:
             print(acc)
             accuracies.append(acc)
 
-        return accuracies
+        return accuracies, self.training_times
 
 
     def plot_tests(self, accuracies, title="", ax=None):
@@ -407,12 +417,13 @@ class VQLS:
 # take in the results and parse through to do some data analysis
 class VQLSResult:
 
-    def __init__(self, A, b, b_norm, norm, state, counts, shots, parameters):
+    def __init__(self, A, b, b_norm, norm, state, training_times, counts, shots, parameters):
         self.A = A
         self.b = b # already normalized
         self.b_norm = b_norm
         self.norm = norm
         self.state = state # normalized |x> straight from the ansatz
+        self.training_times = training_times
         self.counts = counts
         self.shots = shots
         self.opt_parameters = parameters
@@ -429,6 +440,11 @@ class VQLSResult:
         # rescale
         self.x = (x * self.b_norm / np.sqrt(np.real(self.norm))).reshape(-1, 1)
         return self.x
+
+    def get_training_times(self):
+
+        avg_time = sum(self.training_times) / len(self.training_times)
+        return avg_time, self.training_times
 
     def get_probabilities(self):
         std_basis_counts = self.counts.data.meas.get_counts()

@@ -58,6 +58,7 @@ class VQLS:
 
         return self.coefficients
 
+    # linear comb of unitaries
     def prepare_lcu(self, A):
         # A = sum c_l A_l with each A_l a pauli string 
         coefficients = self.pauli_decomposition(A)

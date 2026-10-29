@@ -80,7 +80,7 @@ class VQLS:
 
         # layer of h gates
         for i in range(self.num_qubits):
-            ansatz.h(i)
+            # ansatz.h(i)
             ansatz.ry(self.parameters[i], i)
             if ansatz_type == 1:
                 ansatz.rz(self.parameters[self.num_qubits + i], i)

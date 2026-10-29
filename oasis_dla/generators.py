@@ -12,9 +12,9 @@ SINGLE_QUBIT_GENERATORS = {
     # 'x': X,
     # 'y': Y,
     # 'z': Z,
-    'rx': (1j) * X,
-    'ry': (1j) * Y,
-    'rz': (1j) * Z,
+    'rx': (-1j/2) * X,
+    'ry': (-1j/2) * Y,
+    'rz': (-1j/2) * Z,
     # 'h': (1j) * (X-Z),s
 }
 

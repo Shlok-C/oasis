@@ -42,6 +42,7 @@ class VQLS:
         self.estimator = StatevectorEstimator()
         self.sampler = StatevectorSampler()
 
+        self.training_times = []
 
     def pauli_decomposition(self, A):
         # X, Y, Z Pauli matrices in the proper basis for n-qubits
@@ -281,7 +282,7 @@ class VQLS:
         initial_point = [random.random() for _ in self.parameters]
 
         self.history = []
-        self.training_times = []
+        # self.training_times = []
         def log_step(intermediate_result):
             self.history.append(intermediate_result.fun)
 
@@ -393,7 +394,7 @@ class VQLS:
             # print(q_soln)
             # print(c_soln)
             acc = self.compute_accuracy(q_soln, c_soln)
-            print(acc)
+            print(f"Accuracy: {acc}")
             accuracies.append(acc)
 
         return accuracies, self.training_times

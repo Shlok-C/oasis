@@ -92,8 +92,12 @@ class VQLS:
         # same gates as the ansatz but each one controlled on the ancilla
         circuit = qiskit.QuantumCircuit(self.num_qubits + 1)
 
+        for instruction in self.ansatz.data:
+            controlled_gate = instruction.operation.control()
+
+
         for i in range(self.num_qubits):
-            circuit.ch(self.ancilla_idx, i)
+            # circuit.ch(self.ancilla_idx, i)
             circuit.cry(self.parameters[i], self.ancilla_idx, i)
             if self.ansatz_type == 1:
                 circuit.crz(self.parameters[self.num_qubits + i], self.ancilla_idx, i)
@@ -351,6 +355,7 @@ class VQLS:
         return random.random() + (1j * random.random() * (1-real))
 
     def compute_accuracy(self, qs, cs):
+        assert qs.shape == cs.shape
         return 1 - np.linalg.norm(cs - qs)# / np.linalg.norm(cs))
 
     def compute_fidelity(self, qs, cs):

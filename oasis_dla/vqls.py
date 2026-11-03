@@ -92,15 +92,8 @@ class VQLS:
         # same gates as the ansatz but each one controlled on the ancilla
         circuit = qiskit.QuantumCircuit(self.num_qubits + 1)
 
-        for instruction in self.ansatz.data:
-            controlled_gate = instruction.operation.control()
-
-
-        for i in range(self.num_qubits):
-            # circuit.ch(self.ancilla_idx, i)
-            circuit.cry(self.parameters[i], self.ancilla_idx, i)
-            if self.ansatz_type == 1:
-                circuit.crz(self.parameters[self.num_qubits + i], self.ancilla_idx, i)
+        controlled_ansatz = self.ansatz.to_gate().control(num_ctrl_qubits=1)
+        circuit.append(controlled_ansatz, [3, 2, 1, 0])
 
         return circuit
 
@@ -462,7 +455,7 @@ class VQLSResult:
         return self.x
 
     def __repr__(self):
-        return f"Scaled Solution: {self.solution()}\n"
+        return f"Scaled Solution: \n{self.solution()}"
 
 if __name__ == "__main__":
     vqls = VQLS(qubits=3, cost="local")

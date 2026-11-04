@@ -276,6 +276,7 @@ class VQLS:
                 return np.real(1 - (exp_val/normalization))
 
     def optimize(self):
+        print("Optimizing")
         initial_point = [random.random() for _ in self.parameters]
 
         self.history = []
@@ -323,6 +324,7 @@ class VQLS:
 
     def solve(self, A, b, shots=10_000):
         # flatten so column vectors and 1-D arrays both work
+        print("Solving")
         self.A = np.asarray(A)
         self.b = np.asarray(b).reshape(-1)
 
@@ -339,6 +341,7 @@ class VQLS:
         self.optimize()
         print(self.res)
 
+        print("Readout")
         self.results = self.readout(self.res.x, shots)
 
         return self.results
@@ -386,14 +389,15 @@ class VQLS:
         # clear training times
         self.training_times = []
 
-        for A in dataset:
+        for idx, A in enumerate(dataset):
+            print(f"Iteration: {idx}")
             q_soln = self.solve(A, b).solution()
             c_soln = np.linalg.solve(A, b)
             # print(q_soln)
             # print(c_soln)
             acc = self.compute_accuracy(q_soln, c_soln)
-            print(f"Accuracy: {acc}")
             accuracies.append(acc)
+            print(f"Accuracy: {acc}")
 
         return accuracies, self.training_times
 

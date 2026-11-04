@@ -37,6 +37,7 @@ class VQLS:
             self.ansatz = self.construct_ansatz(ansatz_type)
         else:
             self.ansatz = ansatz
+            self.parameters = list(ansatz.parameters)
         self.circuit = self.ansatz
 
         self.estimator = StatevectorEstimator()
@@ -282,10 +283,11 @@ class VQLS:
         self.history = []
         # self.training_times = []
         def log_step(intermediate_result):
+            print(intermediate_result)
             self.history.append(intermediate_result.fun)
 
         t0 = time.perf_counter()
-        self.res = opt.minimize(self.cost_function, initial_point, method=self.optimizer, callback=log_step)
+        self.res = opt.minimize(self.cost_function, initial_point, method=self.optimizer, callback=log_step, options={"maxiter": 55})
         t1 = time.perf_counter()
         dt = t1 - t0
 

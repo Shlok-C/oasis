@@ -108,7 +108,7 @@ To extend this testing, we move to random complex matrices.
 
 Now we're getting somewhere!
 
-From this testing we determine $ "Average Accuracy for Y-ansatz" = 0.26117 \ "Average Accuracy for YZ-ansatz" = 0.99999 $
+From this testing we determine $ "Average Accuracy for Y-ansatz" = 0.26 \ "Average Accuracy for YZ-ansatz" = 0.99 $
 
 So we can see that the Y-ansatz is clearly underparameterized for this specific problem. Now it does put into question, why is the accuracy for the Y-ansatz not just 0? Especially when you look at the graph and can see that the accuracy is mostly driven down by some especially bad outliers. Maybe at some point in the DLA computations this root-cause can be found and addressed? Perhaps something in the algorithm itself. 
 
@@ -190,3 +190,12 @@ And one of them with a different ansatz, including a Z-rotation gate, that varie
 #quantum-circuit(
   lstick($ket(psi)$), 3, $H$, $R_y (theta_0)$, $R_z (theta_1)$
 )
+
+== Lie Closure Results
+
+
+== Variance computation
+
+== Relating Variance of the loss to training times
+
+== 

@@ -62,6 +62,8 @@ def construct_dla(generators):
 
     return S
 
-            
+def compute_annihilator(dla):
+    pass
 
-
+def compute_ann_complement(ann):
+    pass

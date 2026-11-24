@@ -7,11 +7,14 @@ def linear_indep(*mats: np.ndarray) -> bool:
     rank = np.linalg.matrix_rank(M)
     return rank == len(mats)
 
+# hilbert-schmidt inner product
+def inner_product(A, B):
+    return np.trace(A.conj.T @ B)
 
 def commutator(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return A @ B - B @ A
 
-# bad algorithm
+# error in this algorithm
 def fast_numerical_construct_dla(generators):
     dla = [] # init empty dla to start
     # print('test')
@@ -65,6 +68,6 @@ def construct_dla(generators):
 def compute_annihilator(dla):
     pass
 
-def compute_ann_complement(ann):
+def compute_algebra_complement(ann):
     pass
 #
